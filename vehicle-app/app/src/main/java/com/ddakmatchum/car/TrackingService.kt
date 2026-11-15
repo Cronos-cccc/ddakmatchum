@@ -144,10 +144,11 @@ class TrackingService : Service() {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             PixelFormat.TRANSLUCENT,
         ).apply {
-            // 내비 화면의 오른쪽 위. 내비의 방향 안내 상자(왼쪽 위)와 2D 버튼(오른쪽 끝)을 가리지 않는 자리
+            // 내비 화면의 오른쪽 위. 내비의 방향 안내 상자(왼쪽 위)와 2D 버튼(오른쪽 끝)을 가리지 않는 자리.
+            // 위쪽은 내비의 방향 안내 상자, 2D 버튼과 같은 선에 맞춘다 (지도를 덜 가리게 위로 붙임)
             gravity = Gravity.TOP or Gravity.END
             x = 190
-            y = 130
+            y = 24
         }
         runCatching {
             getSystemService(WindowManager::class.java).addView(v, lp)
