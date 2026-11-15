@@ -514,6 +514,8 @@ class DtViewModel(app: Application) : AndroidViewModel(app) {
     }
     fun demoJam() = demoNavi.jam(180).also { toast("정체 발생: 도착 +3분 → 매장 순서 재계산") }
     fun demoNear() { demoNavi.nearStore(); car.demoDrive(8f) }
+    /** 시연 녹화용: 데모 주행의 남은 시간을 맞춘다 (6분을 다 기다리지 않고 도착 직전 장면을 찍을 때) */
+    fun demoEta(sec: Int) = demoNavi.setRemaining(sec)
     fun demoArrive() { demoNavi.arriveNow(); car.demoDrive(0f) }
     fun demoPark() = car.demoPark()
     fun demoDrive() = car.demoDrive(42f)
@@ -523,7 +525,13 @@ class DtViewModel(app: Application) : AndroidViewModel(app) {
     fun demoDestination() {
         _ui.update { it.copy(demoNavi = true) }
         askedDestinations.clear()
-        demoNavi.setDestination("판교역", 37.3948, 127.1112)
+        // 같은 목적지를 다시 정해도 묻도록 한 번 비웠다가 넣는다.
+        // 값이 그대로면 내비 상태가 바뀌지 않아, "아니요"를 누른 뒤 다시 눌렀을 때 아무 일도 일어나지 않았다.
+        viewModelScope.launch {
+            demoNavi.clearDestination()
+            delay(200)
+            demoNavi.setDestination("판교역", 37.3948, 127.1112)
+        }
     }
 
     /** 시험용: 실제 순정 내비에 목적지를 정한다 (데모 주행이 아니라 실제 내비 값으로 흐름을 돌려 볼 때) */

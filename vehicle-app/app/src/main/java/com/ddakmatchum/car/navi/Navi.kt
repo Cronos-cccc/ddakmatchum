@@ -359,6 +359,11 @@ class DemoNavi {
         _state.update { it.copy(destinationName = name, destLat = lat, destLon = lon, curLat = 37.4127212, curLon = 127.094681) }
     }
 
+    /** 시연용: 정해 둔 목적지를 지운다 (같은 목적지를 다시 정했을 때도 감지되게 하려고 쓴다) */
+    fun clearDestination() {
+        _state.update { it.copy(destinationName = null, destLat = null, destLon = null) }
+    }
+
     fun jam(addSec: Int = 180) {
         remaining += addSec
     }
@@ -366,6 +371,11 @@ class DemoNavi {
     /** 매장 150m 앞, DT 차선 진입 직전 */
     fun nearStore() {
         remaining = 40.0
+    }
+
+    /** 시연 녹화용: 남은 시간을 원하는 값(초)으로 맞춘다 */
+    fun setRemaining(sec: Int) {
+        remaining = sec.coerceAtLeast(1).toDouble()
     }
 
     fun arriveNow() {

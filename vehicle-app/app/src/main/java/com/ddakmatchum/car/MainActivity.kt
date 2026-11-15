@@ -72,6 +72,7 @@ class MainActivity : ComponentActivity() {
             "start" -> vm.demoStartTrip()
             "jam" -> vm.demoJam()
             "near" -> vm.demoNear()
+            "eta" -> vm.demoEta(i.getIntExtra("sec", 90)) // 남은 시간을 sec초로 맞춘다 (--ei sec 90)
             "arrive" -> vm.demoArrive()
             "park" -> vm.demoPark()
             "drive" -> vm.demoDrive()
