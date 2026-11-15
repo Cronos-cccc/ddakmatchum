@@ -1,0 +1,16 @@
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.DS_Store
+node_modules/
+captures/
+.externalNativeBuild/
+.cxx/
+
+scripts/env.bat
+CLAUDE.md
+시작하기.txt
+HANDOVER_*.md
+_backup/

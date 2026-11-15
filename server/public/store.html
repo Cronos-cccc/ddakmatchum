@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>딱맞춤, 매장 제조 화면</title>
+<style>
+  :root {
+    --bg: #0e1116; --panel: #161b22; --line: #262d37; --text: #e8edf3; --mute: #8b97a6;
+    --start: #ff8a1f; --make: #3b8cff; --ready: #22c55e; --hold: #f43f5e; --later: #4b5563; --lane: #eab308;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Pretendard, 'Malgun Gothic', system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 22px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .logo { font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
+  .logo b { color: var(--start); }
+  .store { color: var(--mute); font-size: 14px; }
+  .clock { margin-left: auto; font-variant-numeric: tabular-nums; font-size: 22px; font-weight: 600; }
+  .ctrl { display: flex; gap: 8px; align-items: center; }
+  button { font: inherit; cursor: pointer; border: 1px solid var(--line); background: #1f2630; color: var(--text); border-radius: 10px; padding: 8px 14px; font-weight: 600; }
+  button:hover { border-color: #3a4554; }
+  button.primary { background: var(--start); border-color: var(--start); color: #111; }
+  button.on { background: #2b3542; border-color: #50607a; }
+
+  .radar { padding: 14px 22px 6px; }
+  .radar h3, .col h3 { margin: 0 0 8px; font-size: 13px; color: var(--mute); font-weight: 600; letter-spacing: .3px; }
+  .track { position: relative; height: 84px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .tick { position: absolute; top: 0; bottom: 0; border-left: 1px dashed #2b333e; font-size: 11px; color: #5d6876; padding: 4px 6px; }
+  .zone { position: absolute; left: 0; top: 0; bottom: 0; width: 9%; background: linear-gradient(90deg, rgba(234,179,8,.18), rgba(234,179,8,0)); border-right: 2px solid rgba(234,179,8,.5); font-size: 11px; color: var(--lane); padding: 4px 8px; font-weight: 600; }
+  .pin { position: absolute; top: 26px; transform: translateX(-50%); transition: left .9s linear; text-align: center; }
+  .pin .dot { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 13px; color: #111; margin: 0 auto; box-shadow: 0 0 0 3px var(--bg); }
+  .pin .lbl { font-size: 10px; color: var(--mute); margin-top: 2px; white-space: nowrap; }
+
+  main { display: grid; grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); gap: 18px; padding: 14px 22px 30px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .card { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 14px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; position: relative; transition: transform .4s; }
+  .card.start { border-color: var(--start); box-shadow: 0 0 0 1px var(--start) inset; }
+  .card.making { border-color: var(--make); }
+  .card.ready { border-color: var(--ready); }
+  .card.hold { opacity: .6; border-style: dashed; }
+  .rank { font-size: 34px; font-weight: 800; text-align: center; color: var(--mute); font-variant-numeric: tabular-nums; }
+  .card.start .rank { color: var(--start); }
+  .top { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .no { font-size: 20px; font-weight: 800; }
+  .car { color: var(--mute); font-size: 14px; }
+  .src { font-size: 11px; padding: 2px 7px; border-radius: 99px; background: #233044; color: #9cc1ff; font-weight: 600; }
+  .src.walkin { background: #3a2f12; color: #f7cf5a; }
+  .src.phone { background: #2b2440; color: #c3a8ff; }
+  .items { margin-top: 4px; font-size: 16px; }
+  .meta { margin-top: 6px; display: flex; gap: 14px; color: var(--mute); font-size: 13px; flex-wrap: wrap; }
+  .meta b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .late { color: var(--hold); font-weight: 600; }
+  .lane { color: var(--lane); font-weight: 600; }
+  .right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .badge { font-weight: 800; padding: 8px 12px; border-radius: 10px; font-size: 15px; white-space: nowrap; }
+  .badge.start { background: var(--start); color: #111; animation: pulse 1.2s infinite; }
+  .badge.later { background: var(--later); }
+  .badge.making { background: var(--make); }
+  .badge.ready { background: var(--ready); color: #052e12; }
+  .badge.hold { background: transparent; border: 1px solid var(--hold); color: var(--hold); }
+  @keyframes pulse { 50% { opacity: .65; } }
+  .bar { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--make); border-radius: 0 0 0 16px; transition: width 1s linear; }
+  .acts button { padding: 6px 10px; font-size: 13px; }
+
+  .side { display: flex; flex-direction: column; gap: 18px; }
+  .box { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .vs div { border-radius: 12px; padding: 12px; background: #11161d; }
+  .vs .ours { outline: 1px solid var(--start); }
+  .vs small { color: var(--mute); display: block; font-size: 12px; }
+  .vs .big { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .vs .sub { font-size: 12px; color: var(--mute); margin-top: 4px; }
+  .log { list-style: none; padding: 0; margin: 0; max-height: 420px; overflow: auto; font-size: 13px; }
+  .log li { padding: 7px 0; border-bottom: 1px solid var(--line); color: #c2cad5; }
+  .log li.swap { color: var(--start); font-weight: 600; }
+  .log li.warn { color: #fda4af; }
+  .log li.good { color: #86efac; }
+  .log li.lane { color: var(--lane); }
+  .log time { color: #5d6876; margin-right: 6px; font-variant-numeric: tabular-nums; }
+  .empty { color: var(--mute); padding: 40px; text-align: center; border: 1px dashed var(--line); border-radius: 16px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><b>딱</b>맞춤 <span style="font-weight:600;font-size:14px;color:var(--mute)">도착순 제조</span></div>
+  <div class="store" id="store">연결 중…</div>
+  <div class="ctrl">
+    <button class="primary" onclick="api('/api/sim/start',{scenario:'traffic',store:new URLSearchParams(location.search).get('store')})">▶ 정체 시나리오</button>
+    <button onclick="api('/api/sim/reset')">초기화</button>
+    <span style="color:var(--mute);font-size:13px">배속</span>
+    <button data-s="1" onclick="speed(1)">1x</button>
+    <button data-s="3" onclick="speed(3)">3x</button>
+    <button data-s="5" onclick="speed(5)">5x</button>
+    <button id="barista" onclick="api('/api/sim/barista',{on:!state.sim.autoBarista})">자동 바리스타</button>
+  </div>
+  <div class="clock" id="clock">--:--:--</div>
+</header>
+
+<section class="radar">
+  <h3>도착 레이더, 내비가 보내는 남은 시간 (분)</h3>
+  <div class="track" id="track"></div>
+</section>
+
+<main>
+  <section class="col">
+    <h3>제조 순서, 주문순이 아니라 도착 예정순</h3>
+    <div class="list" id="list"></div>
+  </section>
+  <aside class="side">
+    <div class="box">
+      <h3>같은 주문, 기존 방식이었다면?</h3>
+      <div class="vs">
+        <div><small>기존 (주문순, 즉시 제조)</small><div class="big" id="fW">-</div><div class="sub">도착 후 평균 대기</div><div class="big" id="fI" style="font-size:20px;margin-top:6px">-</div><div class="sub">완성 후 방치 (얼음 녹는 시간)</div></div>
+        <div class="ours"><small>딱맞춤 (도착순)</small><div class="big" id="oW">-</div><div class="sub">도착 후 평균 대기</div><div class="big" id="oI" style="font-size:20px;margin-top:6px">-</div><div class="sub">완성 후 방치</div></div>
+      </div>
+    </div>
+    <div class="box">
+      <h3>실시간 기록</h3>
+      <ul class="log" id="log"></ul>
+    </div>
+  </aside>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let state = null;
+const COLORS = { start: 'var(--start)', later: '#9aa5b4', making: 'var(--make)', ready: 'var(--ready)', hold: 'var(--hold)' };
+const SRC = { car: ['차량', ''], walkin: ['현장', 'walkin'], phone: ['폰', 'phone'] };
+
+function api(path, body) {
+  return fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+}
+function speed(s) { api('/api/sim/speed', { speed: s }); }
+const mmss = (sec) => { sec = Math.max(0, Math.round(sec)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; };
+const secTxt = (s) => (s >= 60 ? `${Math.floor(s / 60)}분 ${s % 60}초` : `${s}초`);
+const hhmm = (t) => new Date(t).toLocaleTimeString('ko-KR', { hour12: false });
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function render() {
+  const s = state; if (!s) return;
+  $('store').textContent = s.store.name;
+  $('clock').textContent = hhmm(s.now);
+  $('barista').classList.toggle('on', !!s.sim.autoBarista);
+  $('barista').textContent = s.sim.autoBarista ? '자동 바리스타 켜짐' : '자동 바리스타 꺼짐';
+  document.querySelectorAll('[data-s]').forEach((b) => b.classList.toggle('on', Number(b.dataset.s) === s.sim.speed));
+
+  // 레이더: 0~10분
+  const MAX = 600;
+  let html = '<div class="zone">차선</div>';
+  for (let m = 1; m <= 10; m++) html += `<div class="tick" style="left:${9 + (m * 60 / MAX) * 89}%">${m}분</div>`;
+  for (const o of s.queue) {
+    const x = o.inLane ? 4.5 : 9 + Math.min(1, Math.max(0, o.arrivalInSec) / MAX) * 89;
+    html += `<div class="pin" style="left:${x}%"><div class="dot" style="background:${COLORS[o.action.kind]}">${o.no}</div><div class="lbl">${o.inLane ? '차선' : mmss(o.arrivalInSec)}</div></div>`;
+  }
+  $('track').innerHTML = html;
+
+  // 제조 순서
+  if (!s.queue.length) {
+    $('list').innerHTML = '<div class="empty">대기 중인 주문이 없어요. 차량 앱에서 주문하거나 ▶ 정체 시나리오를 눌러보세요.</div>';
+  } else {
+    $('list').innerHTML = s.queue.map((o) => {
+      const [srcTxt, srcCls] = SRC[o.source] || SRC.car;
+      const prog = o.status === 'making' ? Math.min(100, ((s.now - o.startedAt) / (o.prepSec * 1000)) * 100) : 0;
+      const arrive = o.inLane ? '<span class="lane">차선 진입, 순서 확정</span>' : `도착 <b>${mmss(o.arrivalInSec)}</b> 후`;
+      const late = o.late && o.status !== 'ready' ? '<span class="late">⚠ 도착보다 늦게 완성 예상</span>' : '';
+      const acts = o.status === 'waiting' ? `<button onclick="api('/api/orders/${o.id}/status',{status:'making'})">제조 시작</button>`
+        : o.status === 'making' ? `<button onclick="api('/api/orders/${o.id}/status',{status:'ready'})">완성</button>`
+        : `<button onclick="api('/api/orders/${o.id}/status',{status:'done'})">전달</button>`;
+      return `<div class="card ${o.action.kind}">
+        <div class="rank">${o.rank}</div>
+        <div>
+          <div class="top"><span class="no">#${o.no}</span><span class="src ${srcCls}">${srcTxt}</span><span class="car">${esc(o.carLabel)}</span></div>
+          <div class="items">${esc(o.summary)}</div>
+          <div class="meta"><span>${arrive}</span><span>제조 <b>${secTxt(o.prepSec)}</b></span>${late}</div>
+        </div>
+        <div class="right"><div class="badge ${o.action.kind}">${esc(o.action.label)}</div><div class="acts">${acts}</div></div>
+        ${prog ? `<div class="bar" style="width:${prog}%"></div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  const c = s.compare;
+  $('fW').textContent = c.n ? secTxt(c.fifo.waitSec) : '-';
+  $('fI').textContent = c.n ? secTxt(c.fifo.idleSec) : '-';
+  $('oW').textContent = c.n ? secTxt(c.ours.waitSec) : '-';
+  $('oI').textContent = c.n ? secTxt(c.ours.idleSec) : '-';
+
+  $('log').innerHTML = s.log.map((l) => `<li class="${l.kind}"><time>${hhmm(l.at)}</time>${esc(l.text)}</li>`).join('');
+}
+
+function connect() {
+  // 주소에 ?store=dt-002 를 붙이면 그 매장의 주문만 본다 (없으면 기본 매장)
+  const es = new EventSource('/api/stream' + location.search);
+  es.onmessage = (e) => { state = JSON.parse(e.data); render(); };
+  es.onerror = () => { $('store').textContent = '서버 연결 끊김, 재연결 중…'; };
+}
+connect();
+</script>
+</body>
+</html>
