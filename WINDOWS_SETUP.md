@@ -102,4 +102,4 @@
 
 ## 제출용 APK 만들기
 
-Android Studio → **Build > Build App Bundle(s) / APK(s) > Build APK(s)** → `vehicle-app\app\build\outputs\apk\` 의 APK를 `apk\딱맞춤_release.apk` 로 복사해서 GitHub에 올리면 돼요. (공모전 규정: 저장소 `apk/` 폴더, 파일명 `팀명_앱이름_release.apk`)
+Android Studio → **Build > Build App Bundle(s) / APK(s) > Build APK(s)** → `vehicle-app\app\build\outputs\apk\` 의 APK를 `apk\빅히어로_딱맞춤_release.apk` 로 복사해서 GitHub에 올리면 돼요. (공모전 규정: 저장소 `apk/` 폴더, 파일명 `팀명_앱이름_release.apk`)

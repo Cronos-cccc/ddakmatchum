@@ -1,4 +1,4 @@
-# 딱맞춤 (가칭) — 도착하는 순간, 딱 나오는 드라이브스루
+# 딱맞춤 — 도착하는 순간, 딱 나오는 드라이브스루
 
 > 현대자동차그룹 차량용 앱 개발 공모전 출품작, Pleos Connect (Android Automotive)
 
@@ -40,10 +40,10 @@
 
 준비물: Pleos Connect 에뮬레이터 v2.1.0, Node.js (매장 서버용, 외부 패키지 없음).
 
-APK 위치: [`apk/딱맞춤_release.apk`](apk/딱맞춤_release.apk) (release 빌드)
+APK 위치: [`apk/빅히어로_딱맞춤_release.apk`](apk/빅히어로_딱맞춤_release.apk) (release 빌드)
 
 ```
-adb install -r apk\딱맞춤_release.apk
+adb install -r apk\빅히어로_딱맞춤_release.apk
 adb shell pm grant --user 10 com.ddakmatchum.car android.permission.RECORD_AUDIO
 adb shell pm grant --user 10 com.ddakmatchum.car android.car.permission.CAR_SPEED
 adb shell pm grant --user 10 com.ddakmatchum.car android.permission.POST_NOTIFICATIONS
